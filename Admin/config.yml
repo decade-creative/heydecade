@@ -2,19 +2,29 @@ backend:
   name: github
   repo: decade-creative/heydecade
   branch: main
-  use_pkce: true
-  app_id: Ov23libShAAIpPhDZtPc
+  base_url: https://domain-vercel-kamu.vercel.app
+  auth_endpoint: api/auth
+  # Catatan: Lihat poin nomor 3 di bawah soal autentikasi GitHub di Vercel
 
-media_folder: "images" # Folder tempat gambar disimpan
+media_folder: "images"
 public_folder: "/images"
 
 collections:
   - name: "halaman"
     label: "Konten Website"
     files:
-      - label: "Teks Utama"
+      - label: "Beranda & Portofolio"
         name: "beranda"
         file: "data.json"
         fields:
-          - {label: "Judul", name: "judul", widget: "string"}
-          - {label: "Deskripsi", name: "deskripsi", widget: "text"}
+          - {label: "Judul Web", name: "judul", widget: "string"}
+          - {label: "Deskripsi / Tagline", name: "deskripsi", widget: "text"}
+          - label: "Daftar Proyek (Galeri)"
+            name: "projects"
+            widget: "list"
+            fields:
+              - {label: "Nama Proyek", name: "title", widget: "string"}
+              - {label: "Kategori", name: "category", widget: "string"}
+              - {label: "Deskripsi Proyek", name: "desc", widget: "text"}
+              - {label: "Link Download / Tujuan", name: "href", widget: "string", default: "#"}
+              - {label: "Gambar Mockup", name: "img", widget: "image"}
