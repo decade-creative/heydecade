@@ -173,6 +173,12 @@
 </div>
 
 <script>
+  document.getElementById('deskripsi-web').textContent = data.deskripsi;
+if (data.email) {
+  const emailEl = document.getElementById('email-web');
+  emailEl.textContent = data.email;
+  emailEl.href = 'mailto:' + data.email;
+}
   const projects = [
   {
     "title": "Homeview",
