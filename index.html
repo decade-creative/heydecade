@@ -135,11 +135,8 @@
 
 <header>
   <p class="eyebrow">Hey, We Are</p>
-  <h1 class="name" id="judul-web">DECADE STUDIO</h1>
-<p class="tagline">
-  <span id="deskripsi-web">Visual designer working across apparel...</span> — 
-  <a id="email-web" href="mailto:hello@example.com">hello@example.com</a>
-</p>
+  <h1 class="name"><span>DECADE</span><span>STUDIO</span></h1>
+  <p class="tagline">Visual designer working across apparel, packaging, and corporate identity. Based somewhere, available for new work — <a href="mailto:hello@example.com">hello@example.com</a></p>
 </header>
 
 <main>
@@ -173,12 +170,6 @@
 </div>
 
 <script>
-  document.getElementById('deskripsi-web').textContent = data.deskripsi;
-if (data.email) {
-  const emailEl = document.getElementById('email-web');
-  emailEl.textContent = data.email;
-  emailEl.href = 'mailto:' + data.email;
-}
   const projects = [
   {
     "title": "Homeview",
@@ -348,15 +339,6 @@ if (data.email) {
   backdrop.addEventListener('click', e => { if(e.target === backdrop) closeModal(); });
   document.getElementById('galleryNext').addEventListener('click', () => openModal(0));
   document.getElementById('galleryPrev').addEventListener('click', () => openModal(projects.length - 1));
-</script>
-<script>
-  fetch('/data.json')
-    .then(response => response.json())
-    .then(data => {
-      if(data.judul) document.getElementById('judul-web').innerText = data.judul;
-      if(data.deskripsi) document.getElementById('deskripsi-web').innerText = data.deskripsi;
-    })
-    .catch(err => console.log("Data CMS belum tersedia."));
 </script>
 </body>
 </html>
