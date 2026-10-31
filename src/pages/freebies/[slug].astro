@@ -1,0 +1,54 @@
+---
+import Base from '../../layouts/Base.astro';
+import { createReader } from '@keystatic/core/reader';
+import keystaticConfig from '../../../keystatic.config';
+
+export async function getStaticPaths() {
+  const reader = createReader(process.cwd(), keystaticConfig);
+  const all = await reader.collections.freebies.all();
+  return all.map(({ slug, entry }) => ({ params: { slug }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+
+const reader = createReader(process.cwd(), keystaticConfig);
+const settings = await reader.singletons.settings.read();
+const siteName = settings?.siteName || 'Decade Studio';
+const email = settings?.email || '';
+
+const description = entry.description || `Free ${entry.category.toLowerCase()} by ${siteName}.`;
+---
+<Base title={`${entry.title} — Free ${entry.category} | ${siteName}`} description={description} image={entry.image}>
+  <div class="detail">
+    <a class="back" href="/#freebies">← All free assets</a>
+
+    <div class="frame">
+      {entry.image
+        ? <img src={entry.image} alt={`${entry.title} preview`}>
+        : <div class="img-placeholder">Image</div>}
+    </div>
+
+    <h1>{entry.title}</h1>
+    <span class="pill">{entry.category}</span>
+
+    {entry.description && <p class="desc">{entry.description}</p>}
+
+    {entry.license && (
+      <div class="license">
+        <h3>License</h3>
+        <p>{entry.license}</p>
+      </div>
+    )}
+
+    <a class="btn btn-solid" href={entry.gumroadUrl} target="_blank" rel="noopener">Download free</a>
+
+    <div class="cta-box">
+      <h2>Need something custom?</h2>
+      <p>I design illustrations, apparel, packaging, and brand identities. Let's talk about your project.</p>
+      <div class="contact-actions">
+        {email && <a class="btn btn-solid" href={`mailto:${email}`}>Get in touch</a>}
+        <a class="btn" href="/#work">See my portfolio</a>
+      </div>
+    </div>
+  </div>
+</Base>

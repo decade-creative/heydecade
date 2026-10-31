@@ -1,0 +1,242 @@
+---
+import Base from '../layouts/Base.astro';
+import { createReader } from '@keystatic/core/reader';
+import keystaticConfig from '../../keystatic.config';
+
+const reader = createReader(process.cwd(), keystaticConfig);
+
+const settings = await reader.singletons.settings.read();
+const projectEntries = await reader.collections.projects.all();
+const freebieEntries = await reader.collections.freebies.all();
+
+const siteName = settings?.siteName || 'Decade Studio';
+const eyebrow = settings?.eyebrow || 'Hey, We Are';
+const tagline = settings?.tagline || '';
+const email = settings?.email || '';
+const cvUrl = settings?.showCv && settings?.cv ? settings.cv : null;
+
+const projects = projectEntries
+  .sort((a, b) => (a.entry.order ?? 100) - (b.entry.order ?? 100))
+  .map(({ slug, entry }) => ({
+    slug,
+    title: entry.title,
+    category: entry.category,
+    description: entry.description,
+    image: entry.image,
+    link: entry.link,
+  }));
+
+const freebies = freebieEntries
+  .sort((a, b) => (a.entry.order ?? 100) - (b.entry.order ?? 100))
+  .map(({ slug, entry }) => ({
+    slug,
+    title: entry.title,
+    category: entry.category,
+    image: entry.image,
+  }));
+
+const categories = [...new Set(projects.map((p) => p.category))];
+// Data ini aman dimasukkan ke halaman karena tanda kurung siku kiri di-escape
+const projectsJson = JSON.stringify(projects).replace(/</g, '\\u003c');
+
+const nameParts = siteName.split(' ');
+const firstWord = nameParts[0];
+const restWords = nameParts.slice(1).join(' ');
+
+const pageTitle = `${siteName} — Portfolio`;
+const pageDescription = tagline;
+const ogImage = projects[0]?.image;
+---
+<Base title={pageTitle} description={pageDescription} image={ogImage}>
+  <header class="hero">
+    <p class="eyebrow">{eyebrow}</p>
+    <h1 class="name">
+      <span>{firstWord}</span>
+      {restWords && <span>{restWords}</span>}
+    </h1>
+    <p class="tagline">
+      {tagline}
+      {email && <> — <a href={`mailto:${email}`}>{email}</a></>}
+    </p>
+    <nav class="topnav" aria-label="Sections">
+      <a href="#work">Work</a>
+      {freebies.length > 0 && <a href="#freebies">Free assets</a>}
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="work">
+      <div class="section-head">
+        <h2>Selected work</h2>
+        {categories.length > 1 && (
+          <div class="filters" id="filters">
+            <button class="chip active" data-filter="all">All</button>
+            {categories.map((c) => <button class="chip" data-filter={c}>{c}</button>)}
+          </div>
+        )}
+      </div>
+
+      {projects.length === 0 ? (
+        <p class="empty">No projects yet.</p>
+      ) : (
+        <div class="gallery" id="gallery">
+          {projects.map((p, i) => (
+            <button class="card" data-index={i} data-cat={p.category} aria-label={`${p.title}, ${p.category}`}>
+              <div class="frame">
+                {p.image
+                  ? <img src={p.image} alt={`${p.title} preview`} loading="lazy">
+                  : <div class="img-placeholder">Image</div>}
+                <div class="overlay"><span class="ov-title">{p.title}</span><span class="ov-cat">{p.category}</span></div>
+                <div class="accent-bar"></div>
+              </div>
+              <div class="card-meta"><div class="t">{p.title}</div><div class="c">{p.category}</div></div>
+            </button>
+          ))}
+        </div>
+      )}
+    </section>
+
+    {freebies.length > 0 && (
+      <section id="freebies">
+        <div class="section-head">
+          <div>
+            <h2>Free assets</h2>
+            <p class="section-sub">Illustrations and mockups you can download and use in your own projects.</p>
+          </div>
+        </div>
+        <div class="gallery">
+          {freebies.map((f) => (
+            <a class="card" href={`/freebies/${f.slug}`} aria-label={`${f.title}, ${f.category}`}>
+              <div class="frame">
+                {f.image
+                  ? <img src={f.image} alt={`${f.title} preview`} loading="lazy">
+                  : <div class="img-placeholder">Image</div>}
+                <div class="overlay"><span class="ov-title">{f.title}</span><span class="ov-cat">{f.category} · Free download</span></div>
+                <div class="accent-bar"></div>
+              </div>
+              <div class="card-meta"><div class="t">{f.title}</div><div class="c">{f.category} · Free download</div></div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <section id="contact" class="contact">
+      <h2>Let's work together</h2>
+      <p>Have a project in mind? Send a message and tell me about it.</p>
+      <div class="contact-actions">
+        {email && <a class="btn btn-solid" href={`mailto:${email}`}>Email me</a>}
+        {cvUrl && <a class="btn" href={cvUrl} download>Download CV</a>}
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">© {new Date().getFullYear()} {siteName}</footer>
+
+  <div class="backdrop" id="backdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="closeBtn" aria-label="Close">×</button>
+      <div class="modal-frame"><img id="modalImg" alt=""><div class="img-placeholder" id="modalPlaceholder">Image</div></div>
+      <div class="modal-body">
+        <div class="modal-top"><h2 class="modal-title" id="modalTitle"></h2><span class="pill" id="modalCat"></span></div>
+        <p class="modal-desc" id="modalDesc"></p>
+        <a class="btn" id="modalLink" href="#" target="_blank" rel="noopener" hidden>View project</a>
+      </div>
+      <div class="modal-nav">
+        <button class="nav-btn" id="prevBtn">‹ Previous</button>
+        <span class="nav-count" id="modalCount"></span>
+        <button class="nav-btn" id="nextBtn">Next ›</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="application/json" id="projects-data" set:html={projectsJson}></script>
+
+  <script is:inline>
+    (function () {
+      var projects = JSON.parse(document.getElementById('projects-data').textContent || '[]');
+      var gallery = document.getElementById('gallery');
+      var backdrop = document.getElementById('backdrop');
+      var modalImg = document.getElementById('modalImg');
+      var modalPlaceholder = document.getElementById('modalPlaceholder');
+      var modalTitle = document.getElementById('modalTitle');
+      var modalCat = document.getElementById('modalCat');
+      var modalDesc = document.getElementById('modalDesc');
+      var modalLink = document.getElementById('modalLink');
+      var modalCount = document.getElementById('modalCount');
+      var activeFilter = 'all';
+      var order = [];   // daftar index proyek yang sedang terlihat (sesuai filter)
+      var pos = 0;      // posisi di dalam "order"
+      var lastFocused = null;
+
+      function visibleIndexes() {
+        var out = [];
+        projects.forEach(function (p, i) {
+          if (activeFilter === 'all' || p.category === activeFilter) out.push(i);
+        });
+        return out;
+      }
+
+      function renderModal(newPos) {
+        if (!order.length) return;
+        pos = (newPos + order.length) % order.length;
+        var p = projects[order[pos]];
+        if (p.image) { modalImg.src = p.image; modalImg.alt = p.title; modalImg.hidden = false; modalPlaceholder.hidden = true; }
+        else { modalImg.hidden = true; modalPlaceholder.hidden = false; }
+        modalTitle.textContent = p.title;
+        modalCat.textContent = p.category;
+        modalDesc.textContent = p.description || '';
+        if (p.link) { modalLink.href = p.link; modalLink.hidden = false; } else { modalLink.hidden = true; }
+        modalCount.textContent = (pos + 1) + ' / ' + order.length;
+      }
+
+      function onKey(e) {
+        if (e.key === 'Escape') closeModal();
+        if (e.key === 'ArrowRight') renderModal(pos + 1);
+        if (e.key === 'ArrowLeft') renderModal(pos - 1);
+      }
+
+      function openModal(index) {
+        order = visibleIndexes();
+        var start = order.indexOf(index);
+        if (start < 0) return;
+        lastFocused = document.activeElement;
+        renderModal(start);
+        backdrop.classList.add('open');
+        document.getElementById('closeBtn').focus();
+        document.addEventListener('keydown', onKey);
+      }
+
+      function closeModal() {
+        backdrop.classList.remove('open');
+        document.removeEventListener('keydown', onKey);
+        if (lastFocused) lastFocused.focus();
+      }
+
+      if (gallery) {
+        gallery.addEventListener('click', function (e) {
+          var card = e.target.closest('.card');
+          if (card) openModal(Number(card.dataset.index));
+        });
+      }
+      document.getElementById('closeBtn').addEventListener('click', closeModal);
+      document.getElementById('prevBtn').addEventListener('click', function () { renderModal(pos - 1); });
+      document.getElementById('nextBtn').addEventListener('click', function () { renderModal(pos + 1); });
+      backdrop.addEventListener('click', function (e) { if (e.target === backdrop) closeModal(); });
+
+      var filters = document.getElementById('filters');
+      if (filters && gallery) {
+        filters.addEventListener('click', function (e) {
+          var chip = e.target.closest('.chip');
+          if (!chip) return;
+          activeFilter = chip.dataset.filter;
+          filters.querySelectorAll('.chip').forEach(function (c) { c.classList.toggle('active', c === chip); });
+          gallery.querySelectorAll('.card').forEach(function (card) {
+            card.hidden = !(activeFilter === 'all' || card.dataset.cat === activeFilter);
+          });
+        });
+      }
+    })();
+  </script>
+</Base>
