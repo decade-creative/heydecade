@@ -23,6 +23,11 @@ export default config({
       path: 'src/content/settings',
       schema: {
         siteName: fields.text({ label: 'Studio name', defaultValue: 'Decade Studio' }),
+        seoTitle: fields.text({
+          label: 'Page title (browser tab & link preview)',
+          description: 'Judul di tab browser dan saat link dibagikan. Usahakan di bawah 60 karakter.',
+          defaultValue: 'Decade Studio — Branding, Mockups & Free Design Assets',
+        }),
         eyebrow: fields.text({ label: 'Small text above the name', defaultValue: 'Hey, We Are' }),
         tagline: fields.text({
           label: 'Tagline',
@@ -46,21 +51,45 @@ export default config({
   },
 
   collections: {
-    // Portofolio. Untuk menambah kategori baru, tambahkan di daftar "options".
+    // Daftar kategori portofolio. Tambah, ganti nama, atau atur urutannya di sini.
+    projectCategories: collection({
+      label: 'Project categories',
+      slugField: 'name',
+      path: 'src/content/project-categories/*',
+      schema: {
+        name: fields.slug({ name: { label: 'Name' } }),
+        order: fields.integer({
+          label: 'Order (1 = first in the filter bar)',
+          defaultValue: 100,
+        }),
+      },
+    }),
+
+    // Daftar kategori freebies (aset gratis).
+    freebieCategories: collection({
+      label: 'Freebie categories',
+      slugField: 'name',
+      path: 'src/content/freebie-categories/*',
+      schema: {
+        name: fields.slug({ name: { label: 'Name' } }),
+        order: fields.integer({
+          label: 'Order (1 = first)',
+          defaultValue: 100,
+        }),
+      },
+    }),
+
+    // Portofolio
     projects: collection({
       label: 'Projects',
       slugField: 'title',
       path: 'src/content/projects/*',
       schema: {
         title: fields.slug({ name: { label: 'Title' } }),
-        category: fields.select({
+        category: fields.relationship({
           label: 'Category',
-          options: [
-            { label: 'Apparel', value: 'Apparel' },
-            { label: 'Packaging', value: 'Packaging' },
-            { label: 'Corporate', value: 'Corporate' },
-          ],
-          defaultValue: 'Apparel',
+          collection: 'projectCategories',
+          validation: { isRequired: true },
         }),
         description: fields.text({ label: 'Description', multiline: true }),
         image: fields.image({
@@ -84,14 +113,10 @@ export default config({
       path: 'src/content/freebies/*',
       schema: {
         title: fields.slug({ name: { label: 'Title' } }),
-        category: fields.select({
+        category: fields.relationship({
           label: 'Category',
-          options: [
-            { label: 'Illustration', value: 'Illustration' },
-            { label: 'Mockup', value: 'Mockup' },
-            { label: 'Other', value: 'Other' },
-          ],
-          defaultValue: 'Illustration',
+          collection: 'freebieCategories',
+          validation: { isRequired: true },
         }),
         description: fields.text({ label: 'Description', multiline: true }),
         image: fields.image({
