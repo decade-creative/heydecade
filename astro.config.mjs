@@ -11,6 +11,14 @@ export default defineConfig({
   integrations: [react(), keystatic()],
   output: 'static',
   adapter: vercel(),
+  // Daftar domain yang sah. Tanpa ini, server mengira namanya "localhost"
+  // dan login GitHub di dashboard ditolak.
+  security: {
+    allowedDomains: [
+      { hostname: 'heydecade.com', protocol: 'https' },
+      { hostname: 'www.heydecade.com', protocol: 'https' },
+    ],
+  },
   vite: {
     // Memperbaiki dashboard yang putih/kosong di komputer lokal
     // (error "does not provide an export named 'default'" dari lodash).
