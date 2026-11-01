@@ -16,9 +16,13 @@ const settings = await reader.singletons.settings.read();
 const siteName = settings?.siteName || 'Decade Studio';
 const email = settings?.email || '';
 
-const description = entry.description || `Free ${entry.category.toLowerCase()} by ${siteName}.`;
+// Ambil nama kategori dari daftar kategori freebies (kalau tidak ketemu, pakai teks aslinya)
+const catEntry = entry.category ? await reader.collections.freebieCategories.read(entry.category) : null;
+const categoryLabel = catEntry?.name || entry.category || '';
+
+const description = entry.description || `Free ${categoryLabel.toLowerCase()} by ${siteName}.`;
 ---
-<Base title={`${entry.title} — Free ${entry.category} | ${siteName}`} description={description} image={entry.image}>
+<Base title={`${entry.title} — Free ${categoryLabel} | ${siteName}`} description={description} image={entry.image}>
   <div class="detail">
     <a class="back" href="/#freebies">← All free assets</a>
 
@@ -29,7 +33,7 @@ const description = entry.description || `Free ${entry.category.toLowerCase()} b
     </div>
 
     <h1>{entry.title}</h1>
-    <span class="pill">{entry.category}</span>
+    <span class="pill">{categoryLabel}</span>
 
     {entry.description && <p class="desc">{entry.description}</p>}
 
