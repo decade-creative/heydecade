@@ -8,6 +8,21 @@ const reader = createReader(process.cwd(), keystaticConfig);
 const settings = await reader.singletons.settings.read();
 const projectEntries = await reader.collections.projects.all();
 const freebieEntries = await reader.collections.freebies.all();
+const projectCatEntries = await reader.collections.projectCategories.all();
+const freebieCatEntries = await reader.collections.freebieCategories.all();
+
+// slug kategori -> { nama tampilan, urutan }
+const projectCatMap = Object.fromEntries(
+  projectCatEntries.map(({ slug, entry }) => [slug, { label: entry.name, order: entry.order ?? 100 }])
+);
+const freebieCatMap = Object.fromEntries(
+  freebieCatEntries.map(({ slug, entry }) => [slug, { label: entry.name, order: entry.order ?? 100 }])
+);
+// Kalau kategori tidak ditemukan (misalnya data lama), tampilkan teks aslinya
+const catLabel = (
+  map: Record<string, { label: string; order: number }>,
+  slug: string | null | undefined
+): string => (slug ? (map[slug]?.label ?? slug) : '');
 
 const siteName = settings?.siteName || 'Decade Studio';
 const eyebrow = settings?.eyebrow || 'Hey, We Are';
@@ -20,7 +35,8 @@ const projects = projectEntries
   .map(({ slug, entry }) => ({
     slug,
     title: entry.title,
-    category: entry.category,
+    category: entry.category ?? '',
+    categoryLabel: catLabel(projectCatMap, entry.category),
     description: entry.description,
     image: entry.image,
     link: entry.link,
@@ -31,11 +47,15 @@ const freebies = freebieEntries
   .map(({ slug, entry }) => ({
     slug,
     title: entry.title,
-    category: entry.category,
+    category: entry.category ?? '',
+    categoryLabel: catLabel(freebieCatMap, entry.category),
     image: entry.image,
   }));
 
-const categories = [...new Set(projects.map((p) => p.category))];
+// Tombol filter: hanya kategori yang dipakai proyek, urut sesuai pengaturan di dashboard
+const categories = [...new Set(projects.map((p) => p.category).filter(Boolean))]
+  .map((slug) => ({ slug, label: catLabel(projectCatMap, slug), order: projectCatMap[slug]?.order ?? 999 }))
+  .sort((a, b) => a.order - b.order);
 // Data ini aman dimasukkan ke halaman karena tanda kurung siku kiri di-escape
 const projectsJson = JSON.stringify(projects).replace(/</g, '\\u003c');
 
@@ -43,7 +63,7 @@ const nameParts = siteName.split(' ');
 const firstWord = nameParts[0];
 const restWords = nameParts.slice(1).join(' ');
 
-const pageTitle = `${siteName} — Identity, Mockups & Graphic Goods`;
+const pageTitle = settings?.seoTitle || `${siteName} — Portfolio`;
 const pageDescription = tagline;
 const ogImage = projects[0]?.image;
 ---
@@ -72,7 +92,7 @@ const ogImage = projects[0]?.image;
         {categories.length > 1 && (
           <div class="filters" id="filters">
             <button class="chip active" data-filter="all">All</button>
-            {categories.map((c) => <button class="chip" data-filter={c}>{c}</button>)}
+            {categories.map((c) => <button class="chip" data-filter={c.slug}>{c.label}</button>)}
           </div>
         )}
       </div>
@@ -82,15 +102,15 @@ const ogImage = projects[0]?.image;
       ) : (
         <div class="gallery" id="gallery">
           {projects.map((p, i) => (
-            <button class="card" data-index={i} data-cat={p.category} aria-label={`${p.title}, ${p.category}`}>
+            <button class="card" data-index={i} data-cat={p.category} aria-label={`${p.title}, ${p.categoryLabel}`}>
               <div class="frame">
                 {p.image
                   ? <img src={p.image} alt={`${p.title} preview`} loading="lazy">
                   : <div class="img-placeholder">Image</div>}
-                <div class="overlay"><span class="ov-title">{p.title}</span><span class="ov-cat">{p.category}</span></div>
+                <div class="overlay"><span class="ov-title">{p.title}</span><span class="ov-cat">{p.categoryLabel}</span></div>
                 <div class="accent-bar"></div>
               </div>
-              <div class="card-meta"><div class="t">{p.title}</div><div class="c">{p.category}</div></div>
+              <div class="card-meta"><div class="t">{p.title}</div><div class="c">{p.categoryLabel}</div></div>
             </button>
           ))}
         </div>
@@ -107,15 +127,15 @@ const ogImage = projects[0]?.image;
         </div>
         <div class="gallery">
           {freebies.map((f) => (
-            <a class="card" href={`/freebies/${f.slug}`} aria-label={`${f.title}, ${f.category}`}>
+            <a class="card" href={`/freebies/${f.slug}`} aria-label={`${f.title}, ${f.categoryLabel}`}>
               <div class="frame">
                 {f.image
                   ? <img src={f.image} alt={`${f.title} preview`} loading="lazy">
                   : <div class="img-placeholder">Image</div>}
-                <div class="overlay"><span class="ov-title">{f.title}</span><span class="ov-cat">{f.category} · Free download</span></div>
+                <div class="overlay"><span class="ov-title">{f.title}</span><span class="ov-cat">{f.categoryLabel} · Free download</span></div>
                 <div class="accent-bar"></div>
               </div>
-              <div class="card-meta"><div class="t">{f.title}</div><div class="c">{f.category} · Free download</div></div>
+              <div class="card-meta"><div class="t">{f.title}</div><div class="c">{f.categoryLabel} · Free download</div></div>
             </a>
           ))}
         </div>
@@ -185,7 +205,7 @@ const ogImage = projects[0]?.image;
         if (p.image) { modalImg.src = p.image; modalImg.alt = p.title; modalImg.hidden = false; modalPlaceholder.hidden = true; }
         else { modalImg.hidden = true; modalPlaceholder.hidden = false; }
         modalTitle.textContent = p.title;
-        modalCat.textContent = p.category;
+        modalCat.textContent = p.categoryLabel;
         modalDesc.textContent = p.description || '';
         if (p.link) { modalLink.href = p.link; modalLink.hidden = false; } else { modalLink.hidden = true; }
         modalCount.textContent = (pos + 1) + ' / ' + order.length;
