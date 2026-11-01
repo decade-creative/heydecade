@@ -12,7 +12,7 @@ const useGithub =
 
 export default config({
   storage: useGithub
-    ? { kind: 'github', repo: { owner: decade-creative, name: heydecade } }
+    ? { kind: 'github', repo: { owner: GITHUB_OWNER, name: GITHUB_REPO } }
     : { kind: 'local' },
 
   ui: { brand: { name: 'Decade Studio' } },
