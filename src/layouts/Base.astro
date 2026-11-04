@@ -26,6 +26,7 @@ const ogImage = image && Astro.site ? new URL(image, Astro.site).href : undefine
 </head>
 <body>
   <slot />
+  <script is:inline type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "3a124ba3dbd24c85be586ba1b91f5f67"}'></script>
 </body>
 </html>
 
