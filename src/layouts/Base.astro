@@ -6,7 +6,7 @@ interface Props {
 }
 const { title, description = '', image } = Astro.props;
 const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
-const ogImage = image && Astro.site ? new URL(image, Astro.site).href : undefined;
+const ogImage = new URL(image ?? '/og-default.png', Astro.site ?? 'https://heydecade.com').href;
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -14,12 +14,17 @@ const ogImage = image && Astro.site ? new URL(image, Astro.site).href : undefine
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{title}</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   {description && <meta name="description" content={description}>}
   {canonical && <link rel="canonical" href={canonical}>}
   <meta property="og:title" content={title}>
   {description && <meta property="og:description" content={description}>}
   {ogImage && <meta property="og:image" content={ogImage}>}
-  <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'}>
+    <meta property="og:image" content={ogImage}>
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;900&display=swap" rel="stylesheet">
