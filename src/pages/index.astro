@@ -65,8 +65,9 @@ const restWords = nameParts.slice(1).join(' ');
 
 const pageTitle = settings?.seoTitle || `${siteName} — Portfolio`;
 const pageDescription = tagline;
+const ogImage = projects[0]?.image;
 ---
-<Base title={pageTitle} description={pageDescription}>
+<Base title={pageTitle} description={pageDescription} image={ogImage}>
   <header class="hero">
     <p class="eyebrow">{eyebrow}</p>
     <h1 class="name">
