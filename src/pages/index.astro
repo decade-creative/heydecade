@@ -70,6 +70,31 @@ const restWords = nameParts.slice(1).join(' ');
 const pageTitle = settings?.seoTitle || `${siteName} — Portfolio`;
 const pageDescription = tagline;
 const ogImage = projects[0]?.image;
+
+// Data terstruktur (JSON-LD) supaya Google tahu ini sebuah studio desain
+const siteUrl = (Astro.site ?? new URL('https://heydecade.com')).href.replace(/\/$/, '');
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${siteUrl}/#org`,
+      name: siteName,
+      url: siteUrl,
+      logo: `${siteUrl}/apple-touch-icon.png`,
+      email: email || undefined,
+      description: tagline || undefined,
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}/#website`,
+      url: siteUrl,
+      name: siteName,
+      publisher: { '@id': `${siteUrl}/#org` },
+    },
+  ],
+};
+const jsonLdString = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
 ---
 <Base title={pageTitle} description={pageDescription} image={ogImage}>
   <header class="hero">
@@ -200,6 +225,7 @@ const ogImage = projects[0]?.image;
   </div>
 
   <script type="application/json" id="projects-data" set:html={projectsJson}></script>
+  <script type="application/ld+json" set:html={jsonLdString}></script>
 
   <script is:inline>
     (function () {
