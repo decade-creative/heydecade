@@ -39,6 +39,7 @@ const projects = projectEntries
     categoryLabel: catLabel(projectCatMap, entry.category),
     description: entry.description,
     image: entry.image,
+    imageAlt: entry.imageAlt || '',
     link: entry.link,
   }));
 
@@ -50,6 +51,7 @@ const freebies = freebieEntries
     category: entry.category ?? '',
     categoryLabel: catLabel(freebieCatMap, entry.category),
     image: entry.image,
+    imageAlt: entry.imageAlt || '',
   }));
 
 // Tombol filter: hanya kategori yang dipakai proyek, urut sesuai pengaturan di dashboard
@@ -105,7 +107,7 @@ const ogImage = projects[0]?.image;
             <button class="card" data-index={i} data-cat={p.category} aria-label={`${p.title}, ${p.categoryLabel}`}>
               <div class="frame">
                 {p.image
-                  ? <img src={p.image} alt={`${p.title} preview`} loading="lazy">
+                  ? <img src={p.image} alt={p.imageAlt || `${p.title}, ${p.categoryLabel}`} loading="lazy">
                   : <div class="img-placeholder">Image</div>}
                 <div class="overlay"><span class="ov-title">{p.title}</span><span class="ov-cat">{p.categoryLabel}</span></div>
                 <div class="accent-bar"></div>
@@ -130,7 +132,7 @@ const ogImage = projects[0]?.image;
             <a class="card" href={`/freebies/${f.slug}`} aria-label={`${f.title}, ${f.categoryLabel}`}>
               <div class="frame">
                 {f.image
-                  ? <img src={f.image} alt={`${f.title} preview`} loading="lazy">
+                  ? <img src={f.image} alt={f.imageAlt || `${f.title}, ${f.categoryLabel}`} loading="lazy">
                   : <div class="img-placeholder">Image</div>}
                 <div class="overlay"><span class="ov-title">{f.title}</span><span class="ov-cat">{f.categoryLabel} · Free download</span></div>
                 <div class="accent-bar"></div>
@@ -202,7 +204,7 @@ const ogImage = projects[0]?.image;
         if (!order.length) return;
         pos = (newPos + order.length) % order.length;
         var p = projects[order[pos]];
-        if (p.image) { modalImg.src = p.image; modalImg.alt = p.title; modalImg.hidden = false; modalPlaceholder.hidden = true; }
+        if (p.image) { modalImg.src = p.image; modalImg.alt = p.imageAlt || p.title; modalImg.hidden = false; modalPlaceholder.hidden = true; }
         else { modalImg.hidden = true; modalPlaceholder.hidden = false; }
         modalTitle.textContent = p.title;
         modalCat.textContent = p.categoryLabel;
