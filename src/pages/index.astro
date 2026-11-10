@@ -104,8 +104,8 @@ const ogImage = projects[0]?.image;
             <label class="sort">
               <span>Sort</span>
               <select id="sortWork" aria-label="Sort projects">
+                <option value="newest" selected>Newest</option>
                 <option value="recommended">Recommended</option>
-                <option value="newest">Newest</option>
                 <option value="oldest">Oldest</option>
                 <option value="az">A to Z</option>
               </select>
@@ -145,8 +145,8 @@ const ogImage = projects[0]?.image;
             <label class="sort">
               <span>Sort</span>
               <select id="sortFreebies" aria-label="Sort free assets">
+                <option value="newest" selected>Newest</option>
                 <option value="recommended">Recommended</option>
-                <option value="newest">Newest</option>
                 <option value="oldest">Oldest</option>
                 <option value="az">A to Z</option>
               </select>
@@ -299,6 +299,9 @@ const ogImage = projects[0]?.image;
       if (sortFreebies && freebiesGallery) {
         sortFreebies.addEventListener('change', function () { sortCards(freebiesGallery, sortFreebies.value); });
       }
+      // Terapkan urutan awal sesuai pilihan yang tampil di menu (default: Newest)
+      if (sortWork && gallery) sortCards(gallery, sortWork.value);
+      if (sortFreebies && freebiesGallery) sortCards(freebiesGallery, sortFreebies.value);
 
       var filters = document.getElementById('filters');
       if (filters && gallery) {
