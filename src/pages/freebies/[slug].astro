@@ -28,7 +28,7 @@ const description = entry.description || `Free ${categoryLabel.toLowerCase()} by
 
     <div class="frame">
       {entry.image
-        ? <img src={entry.image} alt={`${entry.title} preview`}>
+        ? <img src={entry.image} alt={entry.imageAlt || `${entry.title}, ${categoryLabel}`}>
         : <div class="img-placeholder">Image</div>}
     </div>
 
