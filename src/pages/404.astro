@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Page not found" description="This page doesn't exist or has moved.">
+  <main class="nf">
+    <p class="eyebrow">Error</p>
+    <h1 class="big" aria-label="404">
+      <span aria-hidden="true">4</span><span class="dot" aria-hidden="true"></span><span aria-hidden="true">4</span>
+    </h1>
+    <p class="lead">This page doesn't exist, or it has moved. Let's get you back on track.</p>
+    <div class="contact-actions">
+      <a class="btn btn-solid" href="/">Back to home</a>
+      <a class="btn" href="/#freebies">Browse free assets</a>
+    </div>
+  </main>
+</Base>
+
+<style>
+  .nf{ min-height:85vh; display:flex; flex-direction:column; justify-content:center; }
+  .big{
+    display:flex; align-items:center; gap:.03em;
+    font-size:clamp(7rem, 30vw, 20rem); font-weight:900; line-height:.85;
+    letter-spacing:-0.04em; margin:0 0 1.5rem;
+  }
+  .dot{
+    display:inline-block; width:.62em; height:.62em; border-radius:50%;
+    background:var(--accent); animation:bob 3.2s ease-in-out infinite;
+  }
+  .lead{ color:var(--muted); font-size:clamp(1rem,1.6vw,1.2rem); max-width:40ch; line-height:1.5; margin:0 0 2rem; }
+  @keyframes bob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-.08em); } }
+  @media (prefers-reduced-motion: reduce){ .dot{ animation:none; } }
+</style>
