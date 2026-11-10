@@ -40,6 +40,7 @@ const projects = projectEntries
     description: entry.description,
     image: entry.image,
     imageAlt: entry.imageAlt || '',
+    date: entry.date || '',
     link: entry.link,
   }));
 
@@ -52,6 +53,7 @@ const freebies = freebieEntries
     categoryLabel: catLabel(freebieCatMap, entry.category),
     image: entry.image,
     imageAlt: entry.imageAlt || '',
+    date: entry.date || '',
   }));
 
 // Tombol filter: hanya kategori yang dipakai proyek, urut sesuai pengaturan di dashboard
@@ -91,12 +93,25 @@ const ogImage = projects[0]?.image;
     <section id="work">
       <div class="section-head">
         <h2>Selected work</h2>
-        {categories.length > 1 && (
-          <div class="filters" id="filters">
-            <button class="chip active" data-filter="all">All</button>
-            {categories.map((c) => <button class="chip" data-filter={c.slug}>{c.label}</button>)}
-          </div>
-        )}
+        <div class="controls">
+          {categories.length > 1 && (
+            <div class="filters" id="filters">
+              <button class="chip active" data-filter="all">All</button>
+              {categories.map((c) => <button class="chip" data-filter={c.slug}>{c.label}</button>)}
+            </div>
+          )}
+          {projects.length > 1 && (
+            <label class="sort">
+              <span>Sort</span>
+              <select id="sortWork" aria-label="Sort projects">
+                <option value="recommended">Recommended</option>
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+                <option value="az">A to Z</option>
+              </select>
+            </label>
+          )}
+        </div>
       </div>
 
       {projects.length === 0 ? (
@@ -104,7 +119,7 @@ const ogImage = projects[0]?.image;
       ) : (
         <div class="gallery" id="gallery">
           {projects.map((p, i) => (
-            <button class="card" data-index={i} data-cat={p.category} aria-label={`${p.title}, ${p.categoryLabel}`}>
+            <button class="card" data-index={i} data-pos={i} data-date={p.date} data-title={p.title} data-cat={p.category} aria-label={`${p.title}, ${p.categoryLabel}`}>
               <div class="frame">
                 {p.image
                   ? <img src={p.image} alt={p.imageAlt || `${p.title}, ${p.categoryLabel}`} loading="lazy">
@@ -126,10 +141,21 @@ const ogImage = projects[0]?.image;
             <h2>Free assets</h2>
             <p class="section-sub">Illustrations and mockups you can download and use in your own projects.</p>
           </div>
+          {freebies.length > 1 && (
+            <label class="sort">
+              <span>Sort</span>
+              <select id="sortFreebies" aria-label="Sort free assets">
+                <option value="recommended">Recommended</option>
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+                <option value="az">A to Z</option>
+              </select>
+            </label>
+          )}
         </div>
-        <div class="gallery">
-          {freebies.map((f) => (
-            <a class="card" href={`/freebies/${f.slug}`} aria-label={`${f.title}, ${f.categoryLabel}`}>
+        <div class="gallery" id="freebiesGallery">
+          {freebies.map((f, i) => (
+            <a class="card" href={`/freebies/${f.slug}`} data-pos={i} data-date={f.date} data-title={f.title} aria-label={`${f.title}, ${f.categoryLabel}`}>
               <div class="frame">
                 {f.image
                   ? <img src={f.image} alt={f.imageAlt || `${f.title}, ${f.categoryLabel}`} loading="lazy">
@@ -192,12 +218,29 @@ const ogImage = projects[0]?.image;
       var pos = 0;      // posisi di dalam "order"
       var lastFocused = null;
 
+      // Urutan kartu mengikuti urutan di layar (setelah diurutkan), bukan urutan data awal
       function visibleIndexes() {
         var out = [];
-        projects.forEach(function (p, i) {
-          if (activeFilter === 'all' || p.category === activeFilter) out.push(i);
+        if (!gallery) return out;
+        Array.prototype.forEach.call(gallery.querySelectorAll('.card'), function (card) {
+          var i = Number(card.dataset.index);
+          var p = projects[i];
+          if (p && (activeFilter === 'all' || p.category === activeFilter)) out.push(i);
         });
         return out;
+      }
+
+      // Mengurutkan kartu di dalam satu galeri. "recommended" = urutan kolom Order di dashboard.
+      function sortCards(container, mode) {
+        var cards = Array.prototype.slice.call(container.querySelectorAll('.card'));
+        cards.sort(function (a, b) {
+          var r = 0;
+          if (mode === 'newest') r = (b.dataset.date || '').localeCompare(a.dataset.date || '');
+          else if (mode === 'oldest') r = (a.dataset.date || '').localeCompare(b.dataset.date || '');
+          else if (mode === 'az') r = (a.dataset.title || '').localeCompare(b.dataset.title || '');
+          return r !== 0 ? r : Number(a.dataset.pos) - Number(b.dataset.pos);
+        });
+        cards.forEach(function (c) { container.appendChild(c); });
       }
 
       function renderModal(newPos) {
@@ -247,6 +290,16 @@ const ogImage = projects[0]?.image;
       document.getElementById('nextBtn').addEventListener('click', function () { renderModal(pos + 1); });
       backdrop.addEventListener('click', function (e) { if (e.target === backdrop) closeModal(); });
 
+      var sortWork = document.getElementById('sortWork');
+      if (sortWork && gallery) {
+        sortWork.addEventListener('change', function () { sortCards(gallery, sortWork.value); });
+      }
+      var freebiesGallery = document.getElementById('freebiesGallery');
+      var sortFreebies = document.getElementById('sortFreebies');
+      if (sortFreebies && freebiesGallery) {
+        sortFreebies.addEventListener('change', function () { sortCards(freebiesGallery, sortFreebies.value); });
+      }
+
       var filters = document.getElementById('filters');
       if (filters && gallery) {
         filters.addEventListener('click', function (e) {
@@ -262,3 +315,13 @@ const ogImage = projects[0]?.image;
     })();
   </script>
 </Base>
+
+<style>
+  .controls{ display:flex; flex-wrap:wrap; align-items:center; gap:.8rem 1.2rem; }
+  .sort{ display:inline-flex; align-items:center; gap:.5rem; font-size:.82rem; color:var(--muted); }
+  .sort select{
+    background:var(--bg); color:var(--fg); border:1px solid var(--line);
+    padding:.4em .7em; font:inherit; font-size:.82rem; cursor:pointer;
+  }
+  .sort select:hover{ border-color:var(--accent); }
+</style>
