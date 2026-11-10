@@ -104,6 +104,11 @@ export default config({
             'Satu kalimat singkat yang menjelaskan isi gambar, untuk pembaca layar dan Google. Contoh: "Logo kopi dengan huruf oranye di atas kemasan cokelat".',
         }),
         link: fields.url({ label: 'External link (optional, e.g. Behance)' }),
+        date: fields.date({
+          label: 'Date added',
+          description: 'Dipakai untuk urutan "Newest" dan "Oldest". Entri baru otomatis terisi hari ini.',
+          defaultValue: { kind: 'today' },
+        }),
         order: fields.integer({
           label: 'Order (1 = first on the page)',
           defaultValue: 100,
@@ -138,6 +143,11 @@ export default config({
         gumroadUrl: fields.url({
           label: 'Gumroad download link',
           validation: { isRequired: true },
+        }),
+        date: fields.date({
+          label: 'Date added',
+          description: 'Dipakai untuk urutan "Newest" dan "Oldest". Entri baru otomatis terisi hari ini.',
+          defaultValue: { kind: 'today' },
         }),
         license: fields.text({
           label: 'License / terms',
