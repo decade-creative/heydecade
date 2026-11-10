@@ -98,6 +98,11 @@ export default config({
           publicPath: '/images/projects/',
           validation: { isRequired: true },
         }),
+        imageAlt: fields.text({
+          label: 'Image description (alt text)',
+          description:
+            'Satu kalimat singkat yang menjelaskan isi gambar, untuk pembaca layar dan Google. Contoh: "Logo kopi dengan huruf oranye di atas kemasan cokelat".',
+        }),
         link: fields.url({ label: 'External link (optional, e.g. Behance)' }),
         order: fields.integer({
           label: 'Order (1 = first on the page)',
@@ -124,6 +129,11 @@ export default config({
           directory: 'public/images/freebies',
           publicPath: '/images/freebies/',
           validation: { isRequired: true },
+        }),
+        imageAlt: fields.text({
+          label: 'Image description (alt text)',
+          description:
+            'Satu kalimat singkat yang menjelaskan isi gambar, untuk pembaca layar dan Google. Contoh: "Mockup kaleng soda warna perak di atas latar biru".',
         }),
         gumroadUrl: fields.url({
           label: 'Gumroad download link',
