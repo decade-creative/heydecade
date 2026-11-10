@@ -21,6 +21,23 @@ const catEntry = entry.category ? await reader.collections.freebieCategories.rea
 const categoryLabel = catEntry?.name || entry.category || '';
 
 const description = entry.description || `Free ${categoryLabel.toLowerCase()} by ${siteName}.`;
+
+// Data terstruktur (JSON-LD) untuk halaman freebie
+const siteUrl = (Astro.site ?? new URL('https://heydecade.com')).href.replace(/\/$/, '');
+const pageUrl = `${siteUrl}/freebies/${Astro.params.slug}`;
+const imageUrl = entry.image ? new URL(entry.image, `${siteUrl}/`).href : undefined;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: entry.title,
+  description,
+  url: pageUrl,
+  image: imageUrl,
+  genre: categoryLabel || undefined,
+  isAccessibleForFree: true,
+  creator: { '@type': 'Organization', name: siteName, url: siteUrl },
+};
+const jsonLdString = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
 ---
 <Base title={`${entry.title} — Free ${categoryLabel} | ${siteName}`} description={description} image={entry.image}>
   <div class="detail">
@@ -55,4 +72,5 @@ const description = entry.description || `Free ${categoryLabel.toLowerCase()} by
       </div>
     </div>
   </div>
+  <script type="application/ld+json" set:html={jsonLdString}></script>
 </Base>
