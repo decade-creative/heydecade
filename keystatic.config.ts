@@ -179,6 +179,23 @@ export default config({
           description: 'Dipakai untuk urutan "Newest" dan "Oldest". Entri baru otomatis terisi hari ini.',
           defaultValue: { kind: 'today' },
         }),
+        fileFormat: fields.text({
+          label: 'File format',
+          description: 'Contoh: PSD, atau PSD + PNG',
+        }),
+        fileSize: fields.text({
+          label: 'File size',
+          description: 'Contoh: 85 MB',
+        }),
+        software: fields.text({
+          label: 'Works with (software)',
+          description: 'Contoh: Photoshop, atau Illustrator + Photoshop',
+        }),
+        tags: fields.array(fields.text({ label: 'Tag' }), {
+          label: 'Tags',
+          description: 'Kata kunci singkat, misalnya: packaging, matcha, mockup',
+          itemLabel: (props) => props.value,
+        }),
         license: fields.text({
           label: 'License / terms',
           multiline: true,
