@@ -6,7 +6,10 @@ import keystaticConfig from '../../../keystatic.config';
 export async function getStaticPaths() {
   const reader = createReader(process.cwd(), keystaticConfig);
   const all = await reader.collections.freebies.all();
-  return all.map(({ slug, entry }) => ({ params: { slug }, props: { entry } }));
+  // Freebie yang tidak "Published" tidak dibuatkan halaman (entri lama tanpa tanda dianggap tayang)
+  return all
+    .filter(({ entry }) => entry.published !== false)
+    .map(({ slug, entry }) => ({ params: { slug }, props: { entry } }));
 }
 
 const { entry } = Astro.props;
