@@ -147,7 +147,7 @@ const jsonLdString = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
             <button class="card" data-index={i} data-pos={i} data-date={p.date} data-title={p.title} data-cat={p.category} aria-label={`${p.title}, ${p.categoryLabel}`}>
               <div class="frame">
                 {p.image
-                  ? <img src={p.image} alt={p.imageAlt || `${p.title}, ${p.categoryLabel}`} loading="lazy">
+                  ? <img src={p.image} alt={p.imageAlt || `${p.title}, ${p.categoryLabel}`} width="800" height="600" loading={i < 3 ? 'eager' : 'lazy'} decoding="async">
                   : <div class="img-placeholder">Image</div>}
                 <div class="overlay"><span class="ov-title">{p.title}</span><span class="ov-cat">{p.categoryLabel}</span></div>
                 <div class="accent-bar"></div>
@@ -183,7 +183,7 @@ const jsonLdString = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
             <a class="card" href={`/freebies/${f.slug}`} data-pos={i} data-date={f.date} data-title={f.title} aria-label={`${f.title}, ${f.categoryLabel}`}>
               <div class="frame">
                 {f.image
-                  ? <img src={f.image} alt={f.imageAlt || `${f.title}, ${f.categoryLabel}`} loading="lazy">
+                  ? <img src={f.image} alt={f.imageAlt || `${f.title}, ${f.categoryLabel}`} width="800" height="600" loading="lazy" decoding="async">
                   : <div class="img-placeholder">Image</div>}
                 <div class="overlay"><span class="ov-title">{f.title}</span><span class="ov-cat">{f.categoryLabel} · Free download</span></div>
                 <div class="accent-bar"></div>
