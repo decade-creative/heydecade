@@ -45,7 +45,7 @@ const jsonLdString = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
 
     <div class="frame">
       {entry.image
-        ? <img src={entry.image} alt={entry.imageAlt || `${entry.title}, ${categoryLabel}`}>
+        ? <img src={entry.image} alt={entry.imageAlt || `${entry.title}, ${categoryLabel}`} width="1200" height="900" fetchpriority="high" decoding="async">
         : <div class="img-placeholder">Image</div>}
     </div>
 
