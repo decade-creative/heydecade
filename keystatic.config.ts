@@ -91,6 +91,16 @@ export default config({
           collection: 'projectCategories',
           validation: { isRequired: true },
         }),
+        published: fields.checkbox({
+          label: 'Published',
+          description: 'Hapus centang untuk menyembunyikan proyek ini dari website tanpa menghapusnya.',
+          defaultValue: true,
+        }),
+        featured: fields.checkbox({
+          label: 'Featured',
+          description: 'Centang untuk menandai sebagai unggulan: tampil paling atas dan diberi lencana "Featured".',
+          defaultValue: false,
+        }),
         description: fields.text({ label: 'Description', multiline: true }),
         image: fields.image({
           label: 'Cover image',
@@ -104,6 +114,16 @@ export default config({
             'Satu kalimat singkat yang menjelaskan isi gambar, untuk pembaca layar dan Google. Contoh: "Logo kopi dengan huruf oranye di atas kemasan cokelat".',
         }),
         link: fields.url({ label: 'External link (optional, e.g. Behance)' }),
+        published: fields.checkbox({
+          label: 'Published',
+          description: 'Hapus centang untuk menyembunyikan proyek ini dari website tanpa menghapusnya.',
+          defaultValue: true,
+        }),
+        featured: fields.checkbox({
+          label: 'Featured',
+          description: 'Centang untuk menandai sebagai unggulan: tampil paling atas dan diberi lencana "Featured".',
+          defaultValue: false,
+        }),
         date: fields.date({
           label: 'Date added',
           description: 'Dipakai untuk urutan "Newest" dan "Oldest". Entri baru otomatis terisi hari ini.',
@@ -127,6 +147,16 @@ export default config({
           label: 'Category',
           collection: 'freebieCategories',
           validation: { isRequired: true },
+        }),
+        published: fields.checkbox({
+          label: 'Published',
+          description: 'Hapus centang untuk menyembunyikan freebie ini dari website tanpa menghapusnya.',
+          defaultValue: true,
+        }),
+        featured: fields.checkbox({
+          label: 'Featured',
+          description: 'Centang untuk menandai sebagai unggulan: tampil paling atas dan diberi lencana "Featured".',
+          defaultValue: false,
         }),
         description: fields.text({ label: 'Description', multiline: true }),
         image: fields.image({
