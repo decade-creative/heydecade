@@ -24,6 +24,8 @@ const catEntry = entry.category ? await reader.collections.freebieCategories.rea
 const categoryLabel = catEntry?.name || entry.category || '';
 
 const description = entry.description || `Free ${categoryLabel.toLowerCase()} by ${siteName}.`;
+const tags = (entry.tags ?? []).map((t) => t.trim()).filter(Boolean);
+const hasSpecs = Boolean(entry.fileFormat || entry.fileSize || entry.software);
 
 // Data terstruktur (JSON-LD) untuk halaman freebie
 const siteUrl = (Astro.site ?? new URL('https://heydecade.com')).href.replace(/\/$/, '');
@@ -37,6 +39,7 @@ const jsonLd = {
   url: pageUrl,
   image: imageUrl,
   genre: categoryLabel || undefined,
+  keywords: tags.length ? tags.join(', ') : undefined,
   isAccessibleForFree: true,
   creator: { '@type': 'Organization', name: siteName, url: siteUrl },
 };
@@ -56,6 +59,20 @@ const jsonLdString = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
     <span class="pill">{categoryLabel}</span>
 
     {entry.description && <p class="desc">{entry.description}</p>}
+
+    {hasSpecs && (
+      <dl class="specs">
+        {entry.fileFormat && <div><dt>Format</dt><dd>{entry.fileFormat}</dd></div>}
+        {entry.fileSize && <div><dt>File size</dt><dd>{entry.fileSize}</dd></div>}
+        {entry.software && <div><dt>Works with</dt><dd>{entry.software}</dd></div>}
+      </dl>
+    )}
+
+    {tags.length > 0 && (
+      <ul class="tags">
+        {tags.map((t) => <li>{t}</li>)}
+      </ul>
+    )}
 
     {entry.license && (
       <div class="license">
@@ -77,3 +94,11 @@ const jsonLdString = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
   </div>
   <script type="application/ld+json" set:html={jsonLdString}></script>
 </Base>
+
+<style>
+  .specs{ display:flex; flex-wrap:wrap; gap:1.2rem 2.5rem; margin:0 0 1.4rem; padding:1rem 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); max-width:60ch; }
+  .specs dt{ font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:600; margin:0 0 .25rem; }
+  .specs dd{ margin:0; font-weight:600; }
+  .tags{ list-style:none; display:flex; flex-wrap:wrap; gap:.5rem; padding:0; margin:0 0 1.8rem; }
+  .tags li{ border:1px solid var(--line); color:var(--muted); font-size:.82rem; padding:.3em .8em; }
+</style>
