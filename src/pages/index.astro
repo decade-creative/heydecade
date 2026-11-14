@@ -64,6 +64,7 @@ const freebies = freebieEntries
     title: entry.title,
     category: entry.category ?? '',
     categoryLabel: catLabel(freebieCatMap, entry.category),
+    metaLine: [catLabel(freebieCatMap, entry.category), entry.fileFormat].filter(Boolean).join(' · '),
     image: entry.image,
     imageAlt: entry.imageAlt || '',
     date: entry.date || '',
@@ -199,11 +200,11 @@ const jsonLdString = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
                 {f.image
                   ? <img src={f.image} alt={f.imageAlt || `${f.title}, ${f.categoryLabel}`} width="800" height="600" loading="lazy" decoding="async">
                   : <div class="img-placeholder">Image</div>}
-                <div class="overlay"><span class="ov-title">{f.title}</span><span class="ov-cat">{f.categoryLabel} · Free download</span></div>
+                <div class="overlay"><span class="ov-title">{f.title}</span><span class="ov-cat">{f.metaLine} · Free download</span></div>
                 {f.featured && <span class="badge">Featured</span>}
                 <div class="accent-bar"></div>
               </div>
-              <div class="card-meta"><div class="t">{f.title}</div><div class="c">{f.categoryLabel} · Free download</div></div>
+              <div class="card-meta"><div class="t">{f.title}</div><div class="c">{f.metaLine} · Free download</div></div>
             </a>
           ))}
         </div>
@@ -348,6 +349,23 @@ const jsonLdString = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
       if (sortWork && gallery) sortCards(gallery, sortWork.value);
       if (sortFreebies && freebiesGallery) sortCards(freebiesGallery, sortFreebies.value);
 
+      // Lencana "New" otomatis untuk freebie yang ditambahkan dalam 30 hari terakhir
+      if (freebiesGallery) {
+        var NEW_DAYS = 30;
+        Array.prototype.forEach.call(freebiesGallery.querySelectorAll('.card'), function (card) {
+          if (card.dataset.featured === '1' || !card.dataset.date) return;
+          var added = new Date(card.dataset.date + 'T00:00:00');
+          var ageDays = (Date.now() - added.getTime()) / 86400000;
+          if (isNaN(ageDays) || ageDays < 0 || ageDays > NEW_DAYS) return;
+          var frame = card.querySelector('.frame');
+          if (!frame) return;
+          var badge = document.createElement('span');
+          badge.className = 'badge';
+          badge.textContent = 'New';
+          frame.appendChild(badge);
+        });
+      }
+
       var filters = document.getElementById('filters');
       if (filters && gallery) {
         filters.addEventListener('click', function (e) {
@@ -372,7 +390,7 @@ const jsonLdString = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
     padding:.4em .7em; font:inherit; font-size:.82rem; cursor:pointer;
   }
   .sort select:hover{ border-color:var(--accent); }
-  .badge{
+  :global(.badge){
     position:absolute; top:.7rem; left:.7rem; z-index:2;
     background:var(--accent); color:var(--accent-ink);
     font-size:.7rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
